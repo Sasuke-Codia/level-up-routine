@@ -12,9 +12,22 @@ const app = {
     editingRoutineId: null,
 
     init() {
+        // Erstelle Demo-User wenn keiner existiert
+        const currentUserId = localStorage.getItem('currentUserId');
+        if (!currentUserId) {
+            const userId = `demo_${Date.now()}`;
+            this.user = {
+                id: userId,
+                name: 'Demo User',
+                provider: 'Demo',
+                joinedDate: new Date().toISOString()
+            };
+            localStorage.setItem('currentUserId', userId);
+        }
+        
         this.loadFromStorage();
         this.updatePerformanceHistory();
-        this.render();
+        this.showDashboard();
     },
 
     // Login
@@ -731,8 +744,7 @@ const app = {
             'todosFullscreenScreen': 1,
             'calendarScreen': 2,
             'routineOverviewScreen': 3,
-            'onboardingScreen': 3,
-            'profileScreen': 4
+            'onboardingScreen': 3
         };
         
         if (screenMap[activeScreen] !== undefined) {
