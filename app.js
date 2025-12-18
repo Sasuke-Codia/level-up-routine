@@ -28,6 +28,87 @@ const app = {
         this.loadFromStorage();
         this.updatePerformanceHistory();
         this.showDashboard();
+        
+        // Starte Notification-Check (alle 30 Sekunden)
+        this.startNotificationCheck();
+        
+        // Fordere Notification-Permission an
+        this.requestNotificationPermission();
+    },
+
+    // Notification Permission
+    requestNotificationPermission() {
+        if ('Notification' in window && Notification.permission === 'default') {
+            Notification.requestPermission();
+        }
+    },
+
+    // Start Notification Check
+    startNotificationCheck() {
+        // Prüfe sofort
+        this.checkUpcomingTodos();
+        
+        // Dann alle 30 Sekunden
+        setInterval(() => {
+            this.checkUpcomingTodos();
+        }, 30000);
+    },
+
+    // Check Upcoming Todos
+    checkUpcomingTodos() {
+        const now = new Date();
+        const todayRoutines = this.getRoutinesForDate(now);
+        const notifiedKey = 'notifiedTodos_' + now.toDateString();
+        const notifiedTodos = JSON.parse(localStorage.getItem(notifiedKey) || '[]');
+        
+        todayRoutines.forEach(routine => {
+            const [hours, minutes] = routine.time.split(':').map(Number);
+            const routineTime = new Date();
+            routineTime.setHours(hours, minutes, 0, 0);
+            
+            const timeDiff = routineTime - now;
+            const minutesUntil = Math.floor(timeDiff / 60000);
+            
+            // Benachrichtigung 5 Minuten vorher
+            if (minutesUntil === 5 && !notifiedTodos.includes(routine.instanceId)) {
+                this.showNotification(routine);
+                notifiedTodos.push(routine.instanceId);
+                localStorage.setItem(notifiedKey, JSON.stringify(notifiedTodos));
+            }
+        });
+    },
+
+    // Show Notification
+    showNotification(routine) {
+        const message = `${routine.name} startet in 5 Minuten!`;
+        const time = `Um ${routine.time} Uhr • ${routine.duration} Min`;
+        
+        // WhatsApp-Style Pop-up
+        document.getElementById('notificationMessage').textContent = message;
+        document.getElementById('notificationTime').textContent = time;
+        
+        const popup = document.getElementById('notificationPopup');
+        popup.classList.add('show');
+        
+        // Auto-Close nach 8 Sekunden
+        setTimeout(() => {
+            this.closeNotification();
+        }, 8000);
+        
+        // Browser-Notification (falls erlaubt)
+        if ('Notification' in window && Notification.permission === 'granted') {
+            new Notification('Level Up Routine', {
+                body: message,
+                icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="%2300ffff"/></svg>',
+                badge: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="%2300ffff"/></svg>'
+            });
+        }
+    },
+
+    // Close Notification
+    closeNotification() {
+        const popup = document.getElementById('notificationPopup');
+        popup.classList.remove('show');
     },
 
     // Login

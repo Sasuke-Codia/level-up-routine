@@ -1053,6 +1053,108 @@ h3 {
     flex: 1;
 }
 
+/* Notification Pop-up */
+.notification-popup {
+    position: fixed;
+    top: -100px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--bg-secondary);
+    border-radius: 16px;
+    padding: 16px 20px;
+    min-width: 320px;
+    max-width: 90%;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(0, 255, 255, 0.3);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    z-index: 2000;
+    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(0, 255, 255, 0.2);
+}
+
+.notification-popup.show {
+    top: 20px;
+    animation: notificationBounce 0.6s ease-out;
+}
+
+@keyframes notificationBounce {
+    0% { top: -100px; }
+    50% { top: 30px; }
+    70% { top: 15px; }
+    100% { top: 20px; }
+}
+
+.notification-icon {
+    width: 40px;
+    height: 40px;
+    background: var(--gradient-1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    animation: notificationPulse 2s infinite;
+}
+
+@keyframes notificationPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(0, 255, 255, 0.7); }
+    50% { box-shadow: 0 0 0 10px rgba(0, 255, 255, 0); }
+}
+
+.notification-icon svg {
+    color: var(--bg-primary);
+}
+
+.notification-content {
+    flex: 1;
+}
+
+.notification-title {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.notification-message {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
+.notification-time {
+    font-size: 0.75rem;
+    color: var(--accent-primary);
+    margin-top: 4px;
+}
+
+.notification-close {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.notification-close:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+}
+
+@media (max-width: 600px) {
+    .notification-popup {
+        min-width: calc(100% - 40px);
+    }
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .app-title {
