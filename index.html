@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Level Up Routine</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="loginScreen" class="screen active">
+        <div class="login-container">
+            <h1 class="app-title">⚡ Level Up Routine</h1>
+            <p class="subtitle">Baue Gewohnheiten auf und steige auf!</p>
+            
+            <div class="login-buttons">
+                <button class="login-btn apple" onclick="app.login('Apple')">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
+                    </svg>
+                    Mit Apple anmelden
+                </button>
+                <button class="login-btn google" onclick="app.login('Google')">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                    </svg>
+                    Mit Google anmelden
+                </button>
+                <button class="login-btn facebook" onclick="app.login('Facebook')">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                    </svg>
+                    Mit Facebook anmelden
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Onboarding: Add Routines -->
+    <div id="onboardingScreen" class="screen">
+        <div class="container">
+            <h2>Erstelle deine erste Routine</h2>
+            
+            <div class="form-group">
+                <label>Routine Name</label>
+                <input type="text" id="routineName" placeholder="z.B. Morgenmeditation">
+            </div>
+            
+            <div class="form-group">
+                <label>Punkte (1-10)</label>
+                <input type="number" id="routinePoints" min="1" max="10" value="5">
+            </div>
+            
+            <div class="form-group">
+                <label>Häufigkeit</label>
+                <select id="routineFrequency" onchange="app.updateFrequencyOptions()">
+                    <option value="täglich">Täglich</option>
+                    <option value="wöchentlich">Wöchentlich</option>
+                    <option value="monatlich">Monatlich</option>
+                </select>
+            </div>
+            
+            <div class="form-group" id="frequencyCountGroup">
+                <label>Wie oft?</label>
+                <input type="number" id="frequencyCount" min="1" max="10" value="1">
+                <small style="color: var(--text-secondary); display: block; margin-top: 5px;">z.B. 2x täglich</small>
+            </div>
+            
+            <div class="form-group" id="weekdaysGroup" style="display: none;">
+                <label>An welchen Tagen? (Anzahl = Wie oft)</label>
+                <div class="weekday-selector">
+                    <label class="weekday-checkbox">
+                        <input type="checkbox" value="1" onchange="app.updateWeekdayTimeFields()">
+                        <span>Mo</span>
+                    </label>
+                    <label class="weekday-checkbox">
+                        <input type="checkbox" value="2" onchange="app.updateWeekdayTimeFields()">
+                        <span>Di</span>
+                    </label>
+                    <label class="weekday-checkbox">
+                        <input type="checkbox" value="3" onchange="app.updateWeekdayTimeFields()">
+                        <span>Mi</span>
+                    </label>
+                    <label class="weekday-checkbox">
+                        <input type="checkbox" value="4" onchange="app.updateWeekdayTimeFields()">
+                        <span>Do</span>
+                    </label>
+                    <label class="weekday-checkbox">
+                        <input type="checkbox" value="5" onchange="app.updateWeekdayTimeFields()">
+                        <span>Fr</span>
+                    </label>
+                    <label class="weekday-checkbox">
+                        <input type="checkbox" value="6" onchange="app.updateWeekdayTimeFields()">
+                        <span>Sa</span>
+                    </label>
+                    <label class="weekday-checkbox">
+                        <input type="checkbox" value="0" onchange="app.updateWeekdayTimeFields()">
+                        <span>So</span>
+                    </label>
+                </div>
+            </div>
+            
+            <div id="weekdayTimeFields"></div>
+            
+            <div class="form-group" id="monthdaysGroup" style="display: none;">
+                <label>An welchen Tagen im Monat?</label>
+                <input type="text" id="monthDays" placeholder="z.B. 1,15,30">
+                <small style="color: var(--text-secondary); display: block; margin-top: 5px;">Komma-getrennt eingeben</small>
+            </div>
+            
+            <div class="form-group" id="timeGroup">
+                <label>Uhrzeit</label>
+                <input type="time" id="routineTime" value="08:00">
+            </div>
+            
+            <div class="form-group" id="durationGroup">
+                <label>Dauer (Minuten)</label>
+                <input type="number" id="routineDuration" min="1" value="15">
+            </div>
+            
+            <button class="btn-primary" onclick="app.addRoutine()">Routine anlegen</button>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <button class="nav-btn" onclick="app.showDashboard()">
+                <span class="nav-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z" fill="currentColor"/>
+                    </svg>
+                </span>
+                <span class="nav-label">Dashboard</span>
+            </button>
+            <button class="nav-btn" onclick="app.showTodosFullscreen()">
+                <span class="nav-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="currentColor"/>
+                    </svg>
+                </span>
+                <span class="nav-label">TODOs</span>
+            </button>
+            <button class="nav-btn" onclick="app.showCalendar()">
+                <span class="nav-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zM9 14H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2zm-8 4H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2z" fill="currentColor"/>
+                    </svg>
+                </span>
+                <span class="nav-label">Kalender</span>
+            </button>
+            <button class="nav-btn" onclick="app.showRoutineOverview()">
+                <span class="nav-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" fill="currentColor"/>
+                    </svg>
+                </span>
+                <span class="nav-label">Routinen</span>
+            </button>
+            <button class="nav-btn" onclick="app.showProfile()">
+                <span class="nav-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" fill="currentColor"/>
+                    </svg>
+                </span>
+                <span class="nav-label">Profil</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- Routine Overview -->
+    <div id="routineOverviewScreen" class="screen">
+        <div class="container">
+            <h2>Deine Routinen</h2>
+            
+            <div id="routinesList" class="routines-list"></div>
+            
+            <div class="action-buttons">
+                <button class="btn-secondary" onclick="app.showOnboarding(true)">Weitere Routine hinzufügen</button>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <button class="nav-btn" onclick="app.showDashboard()">
+                <span class="nav-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z" fill="currentColor"/>
+                    </svg>
+                </span>
+                <span class="nav-label">Dashboard</span>
+            </button>
+            <button class="nav-btn" onclick="app.showTodosFullscreen()">
+                <span class="nav-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="currentColor"/>
+                    </svg>
+                </span>
+                <span class="nav-label">TODOs</span>
+            </button>
+            <button class="nav-btn" onclick="app.showCalendar()">
+                <span class="nav-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zM9 14H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2zm-8 4H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2z" fill="currentColor"/>
+                    </svg>
+                </span>
+                <span class="nav-label">Kalender</span>
+            </button>
+            <button class="nav-btn active" onclick="app.showRoutineOverview()">
+                <span class="nav-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" fill="currentColor"/>
+                    </svg>
+                </span>
+                <span class="nav-label">Routinen</span>
+            </button>
+            <button class="nav-btn" onclick="app.showProfile()">
+                <span class="nav-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" fill="currentColor"/>
+                    </svg>
+                </span>
+                <span class="nav-label">Profil</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- Main Dashboard -->
+    <div id="dashboardScreen" class="screen">
+        <div class="dashboard-header">
+            <div class="user-stats">
+                <div class="level-badge">
+                    <div class="level-number" id="levelDisplay">1</div>
+                    <div class="level-label">Level</div>
+                </div>
+                <div class="points-info">
+                    <div class="points-value" id="pointsDisplay">0/100</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressBar" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-content">
+            <!-- Two Column Grid for Next Task and Daily Progress -->
+            <div class="dashboard-grid">
+                <!-- Next Task -->
+                <div class="next-task-card">
+                    <h3>Als Nächstes</h3>
+                    <div id="nextTaskDisplay">Keine anstehenden Aufgaben</div>
+                </div>
+
+                <!-- Daily Progress -->
+                <div class="progress-card">
+                    <h3>Tagesfortschritt</h3>
+                    <div class="circular-progress">
+                        <svg viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="40" class="progress-bg"/>
+                            <circle cx="50" cy="50" r="40" class="progress-circle" id="dailyProgressCircle" 
+                                    style="stroke-dasharray: 251.2; stroke-dashoffset: 251.2"/>
+                        </svg>
+                        <div class="progress-text" id="dailyProgressText">0%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Performance Graph -->
+            <div class="graph-card">
+                <h3>Leistung (7 Tage)</h3>
+                <canvas id="performanceChart"></canvas>
+            </div>
+
+            <!-- Todos View -->
+            <div id="todosView" class="todos-view active">
+                <h3>Heutige Aufgaben</h3>
+                <div id="todosList" class="todos-list"></div>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <button class="nav-btn active" onclick="app.showDashboard()">
+                <span class="nav-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z" fill="currentColor"/>
+                    </svg>
+                </span>
+                <span class="nav-label">Dashboard</span>
+            </button>
+            <button class="nav-btn" onclick="app.showTodosFullscreen()">
+                <span class="nav-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="currentColor"/>
+                    </svg>
+                </span>
+                <span class="nav-label">TODOs</span>
+            </button>
+            <button class="nav-btn" onclick="app.showCalendar()">
+                <span class="nav-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zM9 14H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2zm-8 4H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2z" fill="currentColor"/>
+                    </svg>
+                </span>
+                <span class="nav-label">Kalender</span>
+            </button>
+            <button class="nav-btn" onclick="app.showRoutineOverview()">
+                <span class="nav-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" fill="currentColor"/>
+                    </svg>
+                </span>
+                <span class="nav-label">Routinen</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- Todos Fullscreen -->
+    <div id="todosFullscreenScreen" class="screen">
+        <div class="container">
+            <h2>Heutige Aufgaben</h2>
+            <div id="todosFullscreenList" class="todos-list"></div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <button class="nav-btn" onclick="app.showDashboard()">
+                <span class="nav-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z" fill="currentColor"/>
+                    </svg>
+                </span>
+                <span class="nav-label">Dashboard</span>
+            </button>
+            <button class="nav-btn active" onclick="app.showTodosFullscreen()">
+                <span class="nav-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="currentColor"/>
+                    </svg>
+                </span>
+                <span class="nav-label">TODOs</span>
+            </button>
+            <button class="nav-btn" onclick="app.showCalendar()">
+                <span class="nav-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zM9 14H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2zm-8 4H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2z" fill="currentColor"/>
+                    </svg>
+                </span>
+                <span class="nav-label">Kalender</span>
+            </button>
+            <button class="nav-btn" onclick="app.showRoutineOverview()">
+                <span class="nav-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" fill="currentColor"/>
+                    </svg>
+                </span>
+                <span class="nav-label">Routinen</span>
+            </button>
+            <button class="nav-btn" onclick="app.showProfile()">
+                <span class="nav-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" fill="currentColor"/>
+                    </svg>
+                </span>
+                <span class="nav-label">Profil</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- Calendar View -->
+    <div id="calendarScreen" class="screen">
+        <div class="calendar-header">
+            <h2>Kalender</h2>
+            <div class="calendar-view-toggle">
+                <button class="calendar-view-btn active" data-view="day" onclick="app.setCalendarView('day')">
+                    Tag
+                </button>
+                <button class="calendar-view-btn" data-view="week" onclick="app.setCalendarView('week')">
+                    Woche
+                </button>
+                <button class="calendar-view-btn" data-view="month" onclick="app.setCalendarView('month')">
+                    Monat
+                </button>
+            </div>
+        </div>
+
+        <div class="calendar-navigation">
+            <button class="nav-arrow" onclick="app.navigateCalendar(-1)">◀</button>
+            <span class="calendar-title" id="calendarTitle">Heute</span>
+            <button class="nav-arrow" onclick="app.navigateCalendar(1)">▶</button>
+        </div>
+
+        <div id="calendarContainer" class="calendar-container"></div>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <button class="nav-btn" onclick="app.showDashboard()">
+                <span class="nav-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z" fill="currentColor"/>
+                    </svg>
+                </span>
+                <span class="nav-label">Dashboard</span>
+            </button>
+            <button class="nav-btn" onclick="app.showTodosFullscreen()">
+                <span class="nav-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="currentColor"/>
+                    </svg>
+                </span>
+                <span class="nav-label">TODOs</span>
+            </button>
+            <button class="nav-btn active" onclick="app.showCalendar()">
+                <span class="nav-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zM9 14H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2zm-8 4H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2z" fill="currentColor"/>
+                    </svg>
+                </span>
+                <span class="nav-label">Kalender</span>
+            </button>
+            <button class="nav-btn" onclick="app.showRoutineOverview()">
+                <span class="nav-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" fill="currentColor"/>
+                    </svg>
+                </span>
+                <span class="nav-label">Routinen</span>
+            </button>
+            <button class="nav-btn" onclick="app.showProfile()">
+                <span class="nav-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" fill="currentColor"/>
+                    </svg>
+                </span>
+                <span class="nav-label">Profil</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- Edit Routine Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <h2>Routine bearbeiten</h2>
+            
+            <div class="form-group">
+                <label>Routine Name</label>
+                <input type="text" id="editRoutineName" placeholder="z.B. Morgenmeditation">
+            </div>
+            
+            <div class="form-group">
+                <label>Punkte (1-10)</label>
+                <input type="number" id="editRoutinePoints" min="1" max="10" value="5">
+            </div>
+            
+            <div class="form-group">
+                <label>Häufigkeit</label>
+                <select id="editRoutineFrequency" onchange="app.updateEditFrequencyOptions()">
+                    <option value="täglich">Täglich</option>
+                    <option value="wöchentlich">Wöchentlich</option>
+                    <option value="monatlich">Monatlich</option>
+                </select>
+            </div>
+            
+            <div class="form-group" id="editFrequencyCountGroup">
+                <label>Wie oft?</label>
+                <input type="number" id="editFrequencyCount" min="1" max="10" value="1">
+                <small style="color: var(--text-secondary); display: block; margin-top: 5px;">z.B. 2x täglich</small>
+            </div>
+            
+            <div class="form-group" id="editWeekdaysGroup" style="display: none;">
+                <label>An welchen Tagen? (Anzahl = Wie oft)</label>
+                <div class="weekday-selector" id="editWeekdaySelector">
+                    <label class="weekday-checkbox">
+                        <input type="checkbox" value="1" onchange="app.updateEditWeekdayTimeFields()">
+                        <span>Mo</span>
+                    </label>
+                    <label class="weekday-checkbox">
+                        <input type="checkbox" value="2" onchange="app.updateEditWeekdayTimeFields()">
+                        <span>Di</span>
+                    </label>
+                    <label class="weekday-checkbox">
+                        <input type="checkbox" value="3" onchange="app.updateEditWeekdayTimeFields()">
+                        <span>Mi</span>
+                    </label>
+                    <label class="weekday-checkbox">
+                        <input type="checkbox" value="4" onchange="app.updateEditWeekdayTimeFields()">
+                        <span>Do</span>
+                    </label>
+                    <label class="weekday-checkbox">
+                        <input type="checkbox" value="5" onchange="app.updateEditWeekdayTimeFields()">
+                        <span>Fr</span>
+                    </label>
+                    <label class="weekday-checkbox">
+                        <input type="checkbox" value="6" onchange="app.updateEditWeekdayTimeFields()">
+                        <span>Sa</span>
+                    </label>
+                    <label class="weekday-checkbox">
+                        <input type="checkbox" value="0" onchange="app.updateEditWeekdayTimeFields()">
+                        <span>So</span>
+                    </label>
+                </div>
+            </div>
+            
+            <div id="editWeekdayTimeFields"></div>
+            
+            <div class="form-group" id="editMonthdaysGroup" style="display: none;">
+                <label>An welchen Tagen im Monat?</label>
+                <input type="text" id="editMonthDays" placeholder="z.B. 1,15,30">
+                <small style="color: var(--text-secondary); display: block; margin-top: 5px;">Komma-getrennt eingeben</small>
+            </div>
+            
+            <div class="form-group" id="editTimeGroup">
+                <label>Uhrzeit</label>
+                <input type="time" id="editRoutineTime" value="08:00">
+            </div>
+            
+            <div class="form-group" id="editDurationGroup">
+                <label>Dauer (Minuten)</label>
+                <input type="number" id="editRoutineDuration" min="1" value="15">
+            </div>
+            
+            <div class="modal-actions">
+                <button class="btn-danger" onclick="app.deleteRoutineFromModal()">Löschen</button>
+                <button class="btn-primary" onclick="app.saveEditedRoutine()">Speichern</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
