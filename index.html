@@ -67,9 +67,11 @@
             
             <div class="form-group" id="frequencyCountGroup">
                 <label>Wie oft?</label>
-                <input type="number" id="frequencyCount" min="1" max="10" value="1">
+                <input type="number" id="frequencyCount" min="1" max="10" value="1" onchange="app.updateDailyTimeFields()">
                 <small style="color: var(--text-secondary); display: block; margin-top: 5px;">z.B. 2x täglich</small>
             </div>
+            
+            <div id="dailyTimeFields"></div>
             
             <div class="form-group" id="weekdaysGroup" style="display: none;">
                 <label>An welchen Tagen? (Anzahl = Wie oft)</label>

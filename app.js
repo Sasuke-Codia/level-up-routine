@@ -182,12 +182,22 @@ const app = {
         weekdaysGroup.style.display = 'none';
         monthdaysGroup.style.display = 'none';
         document.getElementById('weekdayTimeFields').innerHTML = '';
+        document.getElementById('dailyTimeFields').innerHTML = '';
         
         if (frequency === 'täglich') {
             frequencyCountInput.max = '10';
             frequencyCountGroup.querySelector('small').textContent = 'z.B. 2x täglich';
-            timeGroup.style.display = 'block';
-            durationGroup.style.display = 'block';
+            frequencyCountGroup.style.display = 'block';
+            
+            const count = parseInt(frequencyCountInput.value) || 1;
+            if (count > 1) {
+                timeGroup.style.display = 'none';
+                durationGroup.style.display = 'none';
+                this.updateDailyTimeFields();
+            } else {
+                timeGroup.style.display = 'block';
+                durationGroup.style.display = 'block';
+            }
         } else if (frequency === 'wöchentlich') {
             weekdaysGroup.style.display = 'block';
             frequencyCountGroup.style.display = 'none';
@@ -197,6 +207,46 @@ const app = {
             monthdaysGroup.style.display = 'block';
             frequencyCountInput.max = '31';
             frequencyCountGroup.querySelector('small').textContent = 'z.B. 2x monatlich';
+            timeGroup.style.display = 'block';
+            durationGroup.style.display = 'block';
+        }
+    },
+
+    // Update Daily Time Fields
+    updateDailyTimeFields() {
+        const frequency = document.getElementById('routineFrequency').value;
+        if (frequency !== 'täglich') return;
+        
+        const count = parseInt(document.getElementById('frequencyCount').value) || 1;
+        const container = document.getElementById('dailyTimeFields');
+        const timeGroup = document.getElementById('timeGroup');
+        const durationGroup = document.getElementById('durationGroup');
+        
+        if (count > 1) {
+            timeGroup.style.display = 'none';
+            durationGroup.style.display = 'none';
+            
+            let html = '';
+            for (let i = 1; i <= count; i++) {
+                html += `
+                    <div class="weekday-time-field">
+                        <h4>${i}. Ausführung</h4>
+                        <div class="weekday-time-inputs">
+                            <div>
+                                <label>Uhrzeit</label>
+                                <input type="time" id="dailyTime${i}" value="08:00">
+                            </div>
+                            <div>
+                                <label>Dauer (Min)</label>
+                                <input type="number" id="dailyDuration${i}" value="15" min="1">
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            container.innerHTML = html;
+        } else {
+            container.innerHTML = '';
             timeGroup.style.display = 'block';
             durationGroup.style.display = 'block';
         }
@@ -245,6 +295,22 @@ const app = {
             return;
         }
         
+        // Get daily schedule for multiple daily executions
+        let dailySchedule = [];
+        if (frequency === 'täglich' && frequencyCount > 1) {
+            for (let i = 1; i <= frequencyCount; i++) {
+                const timeInput = document.getElementById(`dailyTime${i}`);
+                const durationInput = document.getElementById(`dailyDuration${i}`);
+                
+                if (timeInput && durationInput) {
+                    dailySchedule.push({
+                        time: timeInput.value,
+                        duration: parseInt(durationInput.value)
+                    });
+                }
+            }
+        }
+        
         // Get selected weekdays with times for weekly routines
         let weekdaySchedule = [];
         if (frequency === 'wöchentlich') {
@@ -288,10 +354,11 @@ const app = {
             points,
             frequency,
             frequencyCount: frequency !== 'wöchentlich' ? frequencyCount : weekdaySchedule.length,
+            dailySchedule: dailySchedule.length > 0 ? dailySchedule : null,
             weekdaySchedule,
             monthDays,
-            time: frequency !== 'wöchentlich' ? time : null,
-            duration: frequency !== 'wöchentlich' ? duration : null,
+            time: frequency !== 'wöchentlich' && dailySchedule.length === 0 ? time : null,
+            duration: frequency !== 'wöchentlich' && dailySchedule.length === 0 ? duration : null,
             createdAt: new Date().toISOString()
         };
 
@@ -844,12 +911,31 @@ const app = {
         const routines = [];
         
         this.routines.forEach(routine => {
-            let shouldShow = false;
-            let timesToShow = 1;
-            
             if (routine.frequency === 'täglich') {
-                shouldShow = true;
-                timesToShow = routine.frequencyCount || 1;
+                // Prüfe ob dailySchedule existiert (mehrfache Ausführungen mit eigenen Zeiten)
+                if (routine.dailySchedule && routine.dailySchedule.length > 0) {
+                    routine.dailySchedule.forEach((schedule, index) => {
+                        routines.push({
+                            ...routine,
+                            time: schedule.time,
+                            duration: schedule.duration,
+                            instanceId: `${routine.id}-daily-${index}`,
+                            instanceIndex: index,
+                            instanceTotal: routine.dailySchedule.length
+                        });
+                    });
+                } else {
+                    // Alte Logik: frequencyCount mal mit gleicher Zeit
+                    const timesToShow = routine.frequencyCount || 1;
+                    for (let i = 0; i < timesToShow; i++) {
+                        routines.push({
+                            ...routine,
+                            instanceId: `${routine.id}-${i}`,
+                            instanceIndex: i,
+                            instanceTotal: timesToShow
+                        });
+                    }
+                }
             } else if (routine.frequency === 'wöchentlich') {
                 if (routine.weekdays && routine.weekdays.includes(dayOfWeek)) {
                     shouldShow = true;
